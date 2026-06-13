@@ -2,31 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-const int maximo_estados = 100;
-const int maximo_linha = 256;
-const int maximo_alfabeto = 128;
-
-//  ESTRUTURAS GLOBAIS 
-char estados[100][8];
-char alfabeto[128];
-int finais[100];
-int estados_iniciais[100];
-int quantidade_de_estados = 0, tamanho_alfabeto = 0;
-
-// Matrizes para o Autómato Finito (AF)
-int transicoes_af[100][128][100];
-
-// Estruturas para a Máquina de Turing / ALL
-typedef struct {
+// estruturas para a Máquina de Turing / ALL
+typedef struct TRANSICAOMT{
     int destino;
     char escreve;
     char direcao; // 'D' (direita) ou 'E' (esquerda)
     int definida;
 } TransicaoMT;
-TransicaoMT transicoes_mt[100][128]; 
 
-// Estruturas para o Autômato de Pilha (AP)
-typedef struct {
+// estruturas para o Autômato de Pilha (AP)
+typedef struct TRANSICAOAP{
     int destino;
     char lido;
     char desempilha;
@@ -34,27 +19,25 @@ typedef struct {
     int definida;
 } TransicaoAP;
 
-TransicaoAP transicoes_ap[100][100]; // Até 100 transições por estado
-
-int qtd_transicoes_ap[100];
-
-//  FUNÇÕES DE BUSCA 
-int buscar_estado(char *nome) {
+// buscador 
+int buscar_estado(char *nome, int quantidade_de_estados, char estados[100][8]) {
     for (int i = 0; i < quantidade_de_estados; i++) {
         if (strcmp(estados[i], nome) == 0) return i;
     }
+
     return -1;
 }
 
-int indice_simbolo(char simbolo, int limite_procura) {
+int indice_simbolo(char simbolo, int limite_procura, char alfabeto[128]) {
     for (int i = 0; i < limite_procura; i++) {
         if (alfabeto[i] == simbolo) return i;
     }
+
     return -1;
 }
 
-//  FECHO LAMBDA (AFN) 
-void fecho_lambda(int estados_ativos[], int indice_lambda) {
+// fecho lambda para o AFN
+void fecho_lambda(int estados_ativos[], int indice_lambda, int quantidade_de_estados, int transicoes_af[100][128][100]) {
     if (indice_lambda == -1) return;
     int mudou = 1;
     while (mudou) {
@@ -72,11 +55,11 @@ void fecho_lambda(int estados_ativos[], int indice_lambda) {
     }
 }
 
-//  SIMULADOR RECURSIVO DO AUTÔMATO DE PILHA (AP) 
-int simular_ap(int estado, int idx_input, const char *input, char *pilha, int topo, int passos) {
-    if (passos > 1000) return 0; // Proteção contra loops infinitos de lambda (\)
+// automato de pilha (AP)
+int simular_ap(int estado, int idx_input, const char *input, char *pilha, int topo, int passos, int quantidade_de_estados, int qtd_transicoes_ap[100], TransicaoAP transicoes_ap[100][100]) {
+    if (passos > 1000) return 0; // proteção contra loops infinitos de lambda (\)
 
-    // Critério de aceitação do PDF: palavra toda lida E pilha vazia
+    // critério de aceitação da especificação: palavra toda lida e pilha vazia
     if (input[idx_input] == '\0' && topo == 0) {
         return 1; 
     }
@@ -110,7 +93,7 @@ int simular_ap(int estado, int idx_input, const char *input, char *pilha, int to
                 proximo_idx++;
             }
 
-            if (simular_ap(t.destino, proximo_idx, input, nova_pilha, novo_topo, passos + 1)) {
+            if (simular_ap(t.destino, proximo_idx, input, nova_pilha, novo_topo, passos + 1, quantidade_de_estados, qtd_transicoes_ap, transicoes_ap)) {
                 return 1; 
             }
         }
@@ -118,8 +101,8 @@ int simular_ap(int estado, int idx_input, const char *input, char *pilha, int to
     return 0; 
 }
 
-//  FUNÇÃO PRINCIPAL DE PROCESSAMENTO (IMPLEMENTA O EXTRA 5) 
-void processar_arquivo(const char *nome_arquivo) {
+// implementação do extra 5
+void processar_arquivo(const char *nome_arquivo, int maximo_estados, int maximo_alfabeto, char estados[100][8], char alfabeto[128], int finais[100], int estados_iniciais[100], int qtd_transicoes_ap[100], TransicaoAP transicoes_ap[100][100], TransicaoMT transicoes_mt[100][128], int transicoes_af[100][128][100], int quantidade_de_estados, int tamanho_alfabeto) {
     char linha[256];
     int modo_automato = -1; // -1 = Indefinido, 0 = AF, 1 = MT, 2 = ALL, 3 = AP
 
@@ -129,11 +112,12 @@ void processar_arquivo(const char *nome_arquivo) {
         return;
     }
 
-    printf(" LENDO ARQUIVO: %s \n", nome_arquivo);
+    printf("LENDO O ARQUIVO: %s \n", nome_arquivo);
 
-    //  RESET COMPLETO DAS VARIÁVEIS GLOBAIS 
+    // reset das variaveis 
     quantidade_de_estados = 0;
     tamanho_alfabeto = 0;
+
     for (int i = 0; i < maximo_estados; i++) {
         finais[i] = 0;
         estados_iniciais[i] = 0;
@@ -144,11 +128,11 @@ void processar_arquivo(const char *nome_arquivo) {
         }
     }
 
-    // Configuração inicial padrão do alfabeto com lambda
+    // configuração inicial padrão do alfabeto com lambda
     alfabeto[tamanho_alfabeto] = '\\';
     int indice_lambda = tamanho_alfabeto++;
 
-    //  LEITURA DO HEADER @TIPO (Exigência do Extra 5) 
+    //  leitura do header @TIPO
     if (fgets(linha, sizeof(linha), arquivo)) {
         linha[strcspn(linha, "\r\n")] = '\0';
         
@@ -163,13 +147,13 @@ void processar_arquivo(const char *nome_arquivo) {
         }
     }
 
-    //  LEITURA DO RESTANTE DA CONFIGURAÇÃO DO AUTOMATO 
+    // leitura do resto do automato
     while (fgets(linha, sizeof(linha), arquivo)) {
         linha[strcspn(linha, "\r\n")] = '\0';
         if (strlen(linha) == 0) continue;
         if (strncmp(linha, "---", 3) == 0) break; 
         
-        // Definição de Estados (Q:)
+        // definição de estados
         if (strncmp(linha, "Q:", 2) == 0) {
             char *token = strtok(linha + 2, " ");
             while (token != NULL) {
@@ -177,7 +161,7 @@ void processar_arquivo(const char *nome_arquivo) {
                 token = strtok(NULL, " ");
             }
         } 
-        // Definição de Alfabeto de Entrada (S:)
+        // definição do alfabeto de entrada 
         else if (strncmp(linha, "S:", 2) == 0) {
             tamanho_alfabeto = 0;
             for (int i = 2; linha[i] != '\0'; i++) {
@@ -186,30 +170,30 @@ void processar_arquivo(const char *nome_arquivo) {
             alfabeto[tamanho_alfabeto] = '\\';
             indice_lambda = tamanho_alfabeto++;
         } 
-        // Alfabeto da Fita / Pilha (G:)
+        // alfabeto de fita / pilha
         else if (strncmp(linha, "G:", 2) == 0) { continue; }
         
-        // Estados Iniciais (I:)
+        // estados iniciais
         else if (strncmp(linha, "I:", 2) == 0) {
             char *token = strtok(linha + 2, " "); // Ajustado para "I: "
             while (token != NULL) {
-                int idx = buscar_estado(token);
+                int idx = buscar_estado(token, quantidade_de_estados, estados);
                 if (idx != -1) estados_iniciais[idx] = 1;
                 token = strtok(NULL, " ");
             }
         } 
 
-        // Estados Finais (F:)
+        // estados finais 
         else if (strncmp(linha, "F:", 2) == 0) {
             char *token = strtok(linha + 2, " "); // Ajustado para "F: "
             while (token != NULL) {
-                int idx = buscar_estado(token);
+                int idx = buscar_estado(token, quantidade_de_estados, estados);
                 if (idx != -1) finais[idx] = 1;
                 token = strtok(NULL, " ");
             }
         } 
 
-        // Processamento das Linhas de Transição
+        // processamento das linhas de transição
         else {
             char origem[8], destino[8];
             char *seta = strstr(linha, "->");
@@ -218,8 +202,8 @@ void processar_arquivo(const char *nome_arquivo) {
 
             sscanf(linha, "%7s", origem);
             sscanf(seta + 2, "%7s", destino);
-            int idx_origem = buscar_estado(origem);
-            int idx_destino = buscar_estado(destino);
+            int idx_origem = buscar_estado(origem, quantidade_de_estados, estados);
+            int idx_destino = buscar_estado(destino, quantidade_de_estados, estados);
 
             if (idx_origem != -1 && idx_destino != -1) {
                 char simbolos[128];
@@ -231,7 +215,8 @@ void processar_arquivo(const char *nome_arquivo) {
                         if (strlen(token) >= 4 && token[1] == '/') {
                             char lido = token[0];
                             char escreve = token[2];
-                            char direcao = token[3];
+                            char direcao = token[strlen(token) - 1]; // Pega sempre a última letra (D ou E)
+
                             transicoes_mt[idx_origem][(int)lido].destino = idx_destino;
                             transicoes_mt[idx_origem][(int)lido].escreve = escreve;
                             transicoes_mt[idx_origem][(int)lido].direcao = direcao;
@@ -265,7 +250,7 @@ void processar_arquivo(const char *nome_arquivo) {
                         }
                     }
                     else {
-                        int idx_simb = indice_simbolo(token[0], tamanho_alfabeto);
+                        int idx_simb = indice_simbolo(token[0], tamanho_alfabeto, alfabeto);
                         if (idx_simb != -1) transicoes_af[idx_origem][idx_simb][idx_destino] = 1;
                     }
                     token = strtok(NULL, " \r\n");
@@ -273,13 +258,12 @@ void processar_arquivo(const char *nome_arquivo) {
             }
         }
     }
-
-    //  PROCESSAMENTO DOS CASOS DE TESTE 
-
+ 
+    // casos de teste 
     printf("Resultados:\n");
     if (modo_automato == 1 || modo_automato == 2) {
 
-        // MODO MÁQUINA DE TURING / ALL 
+        // maquina de turing ALL
         while (fgets(linha, sizeof(linha), arquivo)) {
             linha[strcspn(linha, "\r\n")] = '\0';
             if (strlen(linha) == 0 && feof(arquivo)) continue;
@@ -290,7 +274,7 @@ void processar_arquivo(const char *nome_arquivo) {
 
             fita[0] = '<'; 
             int tam_palavra = strlen(linha);
-            if (tam_palavra > 0) strncpy(&fita[1], linha, tam_palavra); // Corrigido aqui (linha)
+            if (tam_palavra > 0) strncpy(&fita[1], linha, tam_palavra);
             if (modo_automato == 2) fita[1 + tam_palavra] = '>'; 
 
             int cabecote = 1; 
@@ -309,7 +293,7 @@ void processar_arquivo(const char *nome_arquivo) {
                 if (cabecote < 0 || cabecote >= 5000) break; 
 
                 char lido = fita[cabecote];
-                TransicaoMT t = transicoes_mt[estado_atual][(int)lido];
+                TransicaoMT t = transicoes_mt[estado_atual][(int)(unsigned char)lido];
 
                 if (t.definida) {
                     fita[cabecote] = t.escreve;
@@ -334,7 +318,7 @@ void processar_arquivo(const char *nome_arquivo) {
     } 
     else if (modo_automato == 3) {
 
-        // MODO AUTÔMATO DE PILHA (AP) 
+        // automato de pilha (AP) 
         while (fgets(linha, sizeof(linha), arquivo)) {
             linha[strcspn(linha, "\r\n")] = '\0';
             if (strlen(linha) == 0 && feof(arquivo)) continue;
@@ -349,7 +333,7 @@ void processar_arquivo(const char *nome_arquivo) {
             int aceito = 0;
 
             if (estado_inicial != -1) {
-                aceito = simular_ap(estado_inicial, 0, linha, pilha_inicial, topo_inicial, 0);
+                aceito = simular_ap(estado_inicial, 0, linha, pilha_inicial, topo_inicial, 0, quantidade_de_estados, qtd_transicoes_ap, transicoes_ap);
             }
 
             if (aceito) printf("OK\n"); else printf("X\n");
@@ -357,7 +341,7 @@ void processar_arquivo(const char *nome_arquivo) {
     }
     else {
 
-        // MODO AUTÔMATO FINITO (AF) 
+        // automato finito (AF) 
         while (fgets(linha, sizeof(linha), arquivo)) {
             linha[strcspn(linha, "\r\n")] = '\0';
             if (strlen(linha) == 0 && feof(arquivo)) continue;
@@ -365,11 +349,11 @@ void processar_arquivo(const char *nome_arquivo) {
             int estados_atuais[100];
             for (int i = 0; i < quantidade_de_estados; i++) estados_atuais[i] = estados_iniciais[i];
 
-            fecho_lambda(estados_atuais, indice_lambda);
+            fecho_lambda(estados_atuais, indice_lambda, quantidade_de_estados, transicoes_af);
             int rejeitada = 0;
 
             for (int i = 0; linha[i] != '\0'; i++) {
-                int indice = indice_simbolo(linha[i], tamanho_alfabeto - 1); 
+                int indice = indice_simbolo(linha[i], tamanho_alfabeto - 1, alfabeto); 
                 if (indice == -1) { rejeitada = 1; break; }
 
                 int proximos_estados[100] = {0};
@@ -381,7 +365,7 @@ void processar_arquivo(const char *nome_arquivo) {
                     }
                 }
                 for (int e = 0; e < quantidade_de_estados; e++) estados_atuais[e] = proximos_estados[e];
-                fecho_lambda(estados_atuais, indice_lambda);
+                fecho_lambda(estados_atuais, indice_lambda, quantidade_de_estados, transicoes_af);
             }
 
             int aceito = 0;
@@ -400,14 +384,32 @@ void processar_arquivo(const char *nome_arquivo) {
 
 // função principal (main)
 int main() {
-    // Exigência do Extra 5: Especificar os formatos que o simulador aceita
-    printf("SIMULADOR MULTI-AUTOMATOS UNIFICADO\n");
-    printf("Tipos de ficheiro suportados: @AF, @MT, @ALL e @AP\n");
 
-    // Executando os arquivos de teste dinamicamente
-    processar_arquivo("entrada1.txt"); // Abre, processa e FECHA
-    processar_arquivo("entrada2.txt"); // Abre, processa e FECHA
-    processar_arquivo("entrada3.txt"); // Abre, processa e FECHA
+    // valores contantes 
+    const int maximo_estados = 100;
+    const int maximo_linha = 256;
+    const int maximo_alfabeto = 128;
 
-    return 0;
+    // outros valores 
+    char estados[100][8];
+    char alfabeto[128];
+    int finais[100];
+    int estados_iniciais[100];
+    int quantidade_de_estados = 0, tamanho_alfabeto = 0;
+    int qtd_transicoes_ap[100];
+
+    TransicaoMT transicoes_mt[100][128]; // até 128 símbolos de entrada por estado para MT/ALL
+    TransicaoAP transicoes_ap[100][100]; // até 100 transições por estado
+
+    static int transicoes_af[100][128][100]; // matriz para o Autómato Finito (AF)
+
+    // exigência do Extra 5: Especificar os formatos que o simulador aceita
+    printf("SIMULADOR MULTI-AUTOMATOS UNIFICADO\nSuportes: @AF, @MT, @ALL e @AP\n\n");
+
+    // executando os arquivos de teste dinamicamente
+    processar_arquivo("entrada1.txt", 100, 128, estados, alfabeto, finais, estados_iniciais, qtd_transicoes_ap, transicoes_ap, transicoes_mt, transicoes_af, quantidade_de_estados, tamanho_alfabeto); // abre, processa e FECHA
+    processar_arquivo("entrada2.txt", 100, 128, estados, alfabeto, finais, estados_iniciais, qtd_transicoes_ap, transicoes_ap, transicoes_mt, transicoes_af, quantidade_de_estados, tamanho_alfabeto); // abre, processa e FECHA
+    processar_arquivo("entrada3.txt", 100, 128, estados, alfabeto, finais, estados_iniciais, qtd_transicoes_ap, transicoes_ap, transicoes_mt, transicoes_af, quantidade_de_estados, tamanho_alfabeto); // abre, processa e FECHA
+
+    return 0; // encerrando o programa
 }
