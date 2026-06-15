@@ -7,21 +7,26 @@ def criaDicionario(listaTransicoes):
 
         separacao = linha.split(' ')
 
-        print(separacao)
-
-        
-
-        for p in range(4, len(separacao)):
+        for p in range(3, len(separacao)):
             estadoAtual = separacao[0]
             estadoProx = separacao[1]
 
+            transicaoAtual = separacao[p]
+
+            partes = transicaoAtual.split(",")
+
+            print(partes)
+
+            entrada = partes[0]
+
+            infoPilha = partes[1].split("/")
             
+            desempilha = infoPilha[0]
+            empilha = infoPilha[1]
 
-        
+            #print(estadoAtual, estadoProx, entrada, desempilha, empilha)
 
-
-    
-
+            transicoes[(estadoAtual, entrada, desempilha)] = (estadoProx, empilha)
 
 arquivoEntrada = input()
 
@@ -49,10 +54,10 @@ finais = vetLinhas[3].split(' ')
 listaTransicoes = []
 
 for n in range(4, len(vetLinhas)):
-    if vetLinhas[n] == "---":
-        break
-
-    listaTransicoes.append(vetLinhas[n])
+    if vetLinhas[n] != "---":
+        listaTransicoes.append(vetLinhas[n])
 
 criaDicionario(listaTransicoes)
+
+
 
