@@ -9,8 +9,13 @@ def criaDicionario(listaTransicoes):
 
         print(separacao)
 
-        estadoAtual = separacao[0]
-        estadoProx = separacao[1]
+        
+
+        for p in range(4, len(separacao)):
+            estadoAtual = separacao[0]
+            estadoProx = separacao[1]
+
+            
 
         
 
@@ -23,7 +28,7 @@ arquivoEntrada = input()
 pilha = []
 #usar append e 'x = pilha.pop'
 
-with open(arquivoEntrada, 'r', encoding='utf-8') as arquivo:
+with open('./testes/' + arquivoEntrada, 'r', encoding='utf-8') as arquivo:
 
     entrada = arquivo.read()
 
