@@ -19,8 +19,7 @@ class AFD:
         # Altera o estado atual a depender do simbolo atual + estado atual e se existir transicao para isso
         for simbolo in palavra:
             if (estado_atual, simbolo) not in self.transicoes:
-                return False # Não existe transicao com esse simbolo nesse estado_atual
-                                # Retorna que a palavra não pode ser lida por inteiro
+                return False # Não existe transicao com esse simbolo nesse estado_atual. Retorna que a palavra não pode ser lida por inteiro
 
             # Existe transicao valida, passando para o proximo estado
             estado_atual = self.transicoes[(estado_atual, simbolo)]
