@@ -7,6 +7,10 @@ def criaDicionario(listaTransicoes):
 
         separacao = linha.split(' ')
 
+        for i in range(0, len(separacao)):
+            if "\\" in separacao[i]:
+                separacao[i] = separacao[i].replace("\\", " ")
+
         for p in range(3, len(separacao)):
             estadoAtual = separacao[0]
             estadoProx = separacao[1]
@@ -15,8 +19,6 @@ def criaDicionario(listaTransicoes):
 
             partes = transicaoAtual.split(",")
 
-            print(partes)
-
             entrada = partes[0]
 
             infoPilha = partes[1].split("/")
@@ -24,24 +26,50 @@ def criaDicionario(listaTransicoes):
             desempilha = infoPilha[0]
             empilha = infoPilha[1]
 
-            #print(estadoAtual, estadoProx, entrada, desempilha, empilha)
-
             transicoes[(estadoAtual, entrada, desempilha)] = (estadoProx, empilha)
-            return transicoes
+        
+    return transicoes
 
-def simulacao(estadoI, entrada, finais, transicoes):
+def simulacao(estadoI, entrada, transicoes):
     pilha = ["Z"]
 
-    configuracoes = []
+    estadoAt = estadoI
 
-    configuracoes.append((estadoI, 0, []))
+    for i in range(0, len(entrada)):
+        if(pilha == []):
+            return False
+        
+        print("pilha no incicio", pilha)
+        simbolo = entrada[i]
+        topo = pilha[-1]
 
-    while configuracoes:
-        estadoAt, pos, pilha = configuracoes.pop()
+        consulta1 = (estadoAt, simbolo, topo)
+        consulta2 = (estadoAt, simbolo, " ")
 
-        if pos == len(entrada) and estadoAt in finais:
-            return True
+        if(consulta1 in transicoes):
+            novoEstado, empilha = transicoes[consulta1]
+            estadoAt = novoEstado
+            pilha.pop()
 
+            if(empilha != " "):
+                for j in reversed(empilha):
+                    pilha.append(j)
+
+        elif(consulta2 in transicoes):
+            novoEstado, empilha = transicoes[consulta2]
+            estadoAt = novoEstado
+            if(empilha != " "):
+                for j in reversed(empilha):
+                    pilha.append(j)
+
+        print("pilha no final", pilha)
+
+    if len(pilha) == 0 or pilha == ["Z"]:
+        return True
+    else:
+        return False
+
+    
 
 arquivoEntrada = input()
 
@@ -61,25 +89,21 @@ alfabeto = {'0', '1'}
 iniciais = vetLinhas[2].split(' ')
 iniciais.remove("I:")
 
-finais = vetLinhas[3].split(' ')
-
 listaTransicoes = []
 
 for n in range(4, len(vetLinhas)):
     if vetLinhas[n] != "---":
         listaTransicoes.append(vetLinhas[n])
         ultimaLinha = n
-    else: break
+    else: 
+        break
 
-ultimaLinha = ultimaLinha + 1
+ultimaLinha = ultimaLinha + 2
 transicoes = criaDicionario(listaTransicoes)
-
-print(len(vetLinhas), ultimaLinha)
-
-aceita = False
 
 #leitura das entradas de teste
 for i in range(ultimaLinha, len(vetLinhas)):
+    aceita = False
     entradaAtual = vetLinhas[i]
 
     #testar para cada estado inicial
@@ -87,16 +111,13 @@ for i in range(ultimaLinha, len(vetLinhas)):
         estadoInicial = iniciais[j]
 
         print(entradaAtual)
-        print(estadoInicial)
 
-        #logica do automato
-
-
-
-
-
-    if aceita == False:
-        print("X")
-    else:
-        print("OK")
+        if simulacao(estadoInicial, entradaAtual, transicoes) == True:
+            aceita = True
+            break
     
+    if aceita:
+        print("OK")
+
+    else:
+        print("X")
