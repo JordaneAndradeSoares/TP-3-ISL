@@ -27,11 +27,23 @@ def criaDicionario(listaTransicoes):
             #print(estadoAtual, estadoProx, entrada, desempilha, empilha)
 
             transicoes[(estadoAtual, entrada, desempilha)] = (estadoProx, empilha)
+            return transicoes
+
+def simulacao(estadoI, entrada, finais, transicoes):
+    pilha = ["Z"]
+
+    configuracoes = []
+
+    configuracoes.append((estadoI, 0, []))
+
+    while configuracoes:
+        estadoAt, pos, pilha = configuracoes.pop()
+
+        if pos == len(entrada) and estadoAt in finais:
+            return True
+
 
 arquivoEntrada = input()
-
-pilha = []
-#usar append e 'x = pilha.pop'
 
 with open('./testes/' + arquivoEntrada, 'r', encoding='utf-8') as arquivo:
 
@@ -56,8 +68,35 @@ listaTransicoes = []
 for n in range(4, len(vetLinhas)):
     if vetLinhas[n] != "---":
         listaTransicoes.append(vetLinhas[n])
+        ultimaLinha = n
+    else: break
 
-criaDicionario(listaTransicoes)
+ultimaLinha = ultimaLinha + 1
+transicoes = criaDicionario(listaTransicoes)
+
+print(len(vetLinhas), ultimaLinha)
+
+aceita = False
+
+#leitura das entradas de teste
+for i in range(ultimaLinha, len(vetLinhas)):
+    entradaAtual = vetLinhas[i]
+
+    #testar para cada estado inicial
+    for j in range(0, len(iniciais)):
+        estadoInicial = iniciais[j]
+
+        print(entradaAtual)
+        print(estadoInicial)
+
+        #logica do automato
 
 
 
+
+
+    if aceita == False:
+        print("X")
+    else:
+        print("OK")
+    
