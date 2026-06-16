@@ -1,4 +1,4 @@
-from extra_alfabeto import ler_afd_com_alfabeto
+from extra_alfabeto import ler_afd_com_alfabeto # importando função da implementação da AF
 
 class TransicaoMT:
     def __init__(self):
@@ -15,6 +15,7 @@ class TransicaoAP:
         self.empilha = ""
         self.definida = 0
 
+# funções de busca
 def buscar_estado(nome):
     for i in range(quantidade_de_estados):
         if estados[i] == nome:
@@ -26,28 +27,36 @@ def indice_simbolo(simbolo, limite_procura):
         if alfabeto[i] == simbolo:
             return i
     return -1
+ 
+# função para abrir arquivo e tratar erro
+def abrir_arquivo(nome_arquivo): 
 
-def abrir_arquivo(nome_arquivo):
+    # abrindo o arquivo 
     try:
-        return open(nome_arquivo, 'r')
+        return open(nome_arquivo, 'r') 
+    
+    # tratando erro caso o arquivo não seja encontrado ou não possa ser aberto
     except FileNotFoundError:
         print(f"Erro: Arquivo '{nome_arquivo}' arquivo não pode ser aberto.")
         return None
 
-def processar_arquivo_af(arquivo_af, MAXIMO_ESTADOS, MAXIMO_ALFABETO):
+# AF
+def processar_arquivo_af(arquivo_af):
     arquivo = abrir_arquivo(arquivo_af)
     if arquivo is None:
         return
 
     linhas = arquivo.readlines()
-    afd, palavras = ler_afd_com_alfabeto(linhas)
+    afd, palavras = ler_afd_com_alfabeto(linhas) # usando a função importada (ler_afd_com_alfabeto)
 
+    # exibindo os resultados
     for palavra in palavras:
         if afd.validar_palavra(palavra):
             print("OK")
         else:
             print("X")
 
+# MT
 def processar_arquivo_mt(arquivo_mt, MAXIMO_ESTADOS, MAXIMO_ALFABETO):
     arquivo = abrir_arquivo(arquivo_mt)
     if arquivo is None:
@@ -56,6 +65,7 @@ def processar_arquivo_mt(arquivo_mt, MAXIMO_ESTADOS, MAXIMO_ALFABETO):
     transicoes_mt = [[TransicaoMT() for _ in range(MAXIMO_ALFABETO)] for _ in range(MAXIMO_ESTADOS)]
     pass
 
+# ALL
 def processar_arquivo_all(arquivo_all):
     arquivo = abrir_arquivo(arquivo_all)
     if arquivo is None:
@@ -63,6 +73,7 @@ def processar_arquivo_all(arquivo_all):
 
     pass
 
+# AP
 def processar_arquivo_ap(arquivo_ap, MAXIMO_ESTADOS):
     arquivo = abrir_arquivo(arquivo_ap)
     if arquivo is None:
@@ -90,7 +101,7 @@ if __name__ == "__main__":
 
     # @AF
     print("\n@AF (abrindo 'entrada_af.txt'):")
-    processar_arquivo_af("entrada_af.txt", MAXIMO_ESTADOS, MAXIMO_ALFABETO)
+    processar_arquivo_af("entrada_af.txt")
 
     # @MT
     print("\n@MT (abrindo 'entrada_mt.txt'):")
