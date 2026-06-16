@@ -58,19 +58,19 @@ def ler_afd(linhas):
 
     i += 1
 
-    palavras = [linha.rstrip("\n") for linha in linhas[i:]]
+    palavras_af = [linha.rstrip("\n") for linha in linhas[i:]]
 
-    return afd, palavras
+    return afd, palavras_af
 
 def processar_arquivo(nome_arquivo):
     with open(nome_arquivo, "r") as arq:
         linhas = arq.readlines()
 
-    afd, palavras = ler_afd(linhas)
+    afd, palavras_af = ler_afd(linhas)
 
     resultados = []
 
-    for palavra in palavras:
+    for palavra in palavras_af:
 
         if afd.validar_palavra(palavra):
             resultados.append("OK")

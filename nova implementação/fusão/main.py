@@ -28,7 +28,7 @@ def indice_simbolo(simbolo, limite_procura):
             return i
     return -1
  
-# função para abrir arquivo e tratar erro
+# função para abrir arquivo e tratar possivel erro de abertura do arquivo
 def abrir_arquivo(nome_arquivo): 
 
     # abrindo o arquivo 
@@ -37,7 +37,7 @@ def abrir_arquivo(nome_arquivo):
     
     # tratando erro caso o arquivo não seja encontrado ou não possa ser aberto
     except FileNotFoundError:
-        print(f"Erro: Arquivo '{nome_arquivo}' arquivo não pode ser aberto.")
+        print(f"Erro: Arquivo '{nome_arquivo}' não pode ser aberto.")
         return None
 
 # AF
@@ -47,10 +47,14 @@ def processar_arquivo_af(arquivo_af):
         return
 
     linhas = arquivo.readlines()
-    afd, palavras = ler_afd_com_alfabeto(linhas) # usando a função importada (ler_afd_com_alfabeto)
+
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
+    afd, palavras_af = ler_afd_com_alfabeto(linhas) # usando a função importada (ler_afd_com_alfabeto)
 
     # exibindo os resultados
-    for palavra in palavras:
+    for palavra in palavras_af:
         if afd.validar_palavra(palavra):
             print("OK")
         else:
@@ -59,6 +63,12 @@ def processar_arquivo_af(arquivo_af):
 # MT
 def processar_arquivo_mt(arquivo_mt, MAXIMO_ESTADOS, MAXIMO_ALFABETO):
     arquivo = abrir_arquivo(arquivo_mt)
+    if arquivo is None:
+        return
+    
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
     if arquivo is None:
         return
 
@@ -71,11 +81,23 @@ def processar_arquivo_all(arquivo_all):
     if arquivo is None:
         return
 
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
+    if arquivo is None:
+        return
+
     pass
 
 # AP
 def processar_arquivo_ap(arquivo_ap, MAXIMO_ESTADOS):
     arquivo = abrir_arquivo(arquivo_ap)
+    if arquivo is None:
+        return
+
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
     if arquivo is None:
         return
 

@@ -60,6 +60,6 @@ def ler_afd_com_alfabeto(linhas):
 
     i += 1
 
-    palavras = [linha.rstrip("\n") for linha in linhas[i:]]
+    palavras_af = [linha.rstrip("\n") for linha in linhas[i:]]
 
-    return afd, palavras
+    return afd, palavras_af
