@@ -37,7 +37,7 @@ def abrir_arquivo(nome_arquivo):
     
     # tratando erro caso o arquivo não seja encontrado ou não possa ser aberto
     except FileNotFoundError:
-        print(f"Erro: Arquivo '{nome_arquivo}' arquivo não pode ser aberto.")
+        print(f"Erro: Arquivo '{nome_arquivo}' não pode ser aberto.")
         return None
 
 # AF
@@ -65,6 +65,12 @@ def processar_arquivo_mt(arquivo_mt, MAXIMO_ESTADOS, MAXIMO_ALFABETO):
     arquivo = abrir_arquivo(arquivo_mt)
     if arquivo is None:
         return
+    
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
+    if arquivo is None:
+        return
 
     transicoes_mt = [[TransicaoMT() for _ in range(MAXIMO_ALFABETO)] for _ in range(MAXIMO_ESTADOS)]
     pass
@@ -75,11 +81,23 @@ def processar_arquivo_all(arquivo_all):
     if arquivo is None:
         return
 
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
+    if arquivo is None:
+        return
+
     pass
 
 # AP
 def processar_arquivo_ap(arquivo_ap, MAXIMO_ESTADOS):
     arquivo = abrir_arquivo(arquivo_ap)
+    if arquivo is None:
+        return
+
+    arquivo.close() # fechando o arquivo após a leitura
+    print("Arquivo lido e fechado com sucesso. Processando...")
+
     if arquivo is None:
         return
 
