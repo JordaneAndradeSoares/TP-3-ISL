@@ -43,8 +43,6 @@ def leitura():
     for i in range(ultimaLinha, len(vetLinhas)):
         aceita = False
 
-        
-
         entradaAtual = vetLinhas[i]
         print(entradaAtual)
 

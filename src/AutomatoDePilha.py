@@ -89,10 +89,10 @@ class AutomatoDePilha:
     """
 
     def simulacao(self, estadoI, entrada):
-        # Configuração: (estado, índice_na_entrada, pilha_como_tupla)
+        #cnfiguração: (estado, i da entrada, pilha)
         iniciais = {(estadoI, 0, ("Z",))}
         
-        # Expande lambdas a partir de um conjunto de configs
+        #
         def expandeLambda(configs):
             visitados = set(configs)
             fila = deque(configs)
@@ -101,7 +101,9 @@ class AutomatoDePilha:
                 if not pilha:
                     continue
                 topo = pilha[-1]
-                # Tenta transição λ no símbolo
+                print(pilha)
+
+                #transicao vazia
                 for consulta in [(estado, LAMBDA, topo), (estado, LAMBDA, LAMBDA)]:
                     if consulta in self.transicoes:
                         novoEstado, empilha = self.transicoes[consulta]
@@ -129,26 +131,24 @@ class AutomatoDePilha:
                     if consulta in self.transicoes:
                         novoEstado, empilha = self.transicoes[consulta]
                         novaPilha = list(pilha)
-                        if consulta[2] != LAMBDA:   # desempilha só se não for λ
+
+                        #desempilha se nao for lambda
+                        if consulta[2] != LAMBDA:
                             novaPilha.pop()
                         if empilha != LAMBDA:
                             for s in reversed(empilha):
                                 novaPilha.append(s)
                         proximas.add((novoEstado, i + 1, tuple(novaPilha)))
-            # Expande lambdas após consumir o símbolo
+            
             configs = expandeLambda(proximas)
             if not configs:
                 return False
 
-        # Aceita se alguma config final tem pilha vazia ou só com Z
+        #aceita se alguma configuracao tem pilha só com Z
         return any(
-            len(pilha) == 0 or pilha == ("Z",)
+            pilha == ("Z",)
             for estado, idx, pilha in configs
         )
-
-
-
-
 
     def verificaAlfabeto(self, entrada):
         alfabeto = self.alfabeto
