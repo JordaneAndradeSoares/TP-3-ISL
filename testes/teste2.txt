@@ -1,0 +1,14 @@
+Q: 1 2
+S: ab
+G: A
+I: 1
+F: 
+1 -> 1 | a,\/AA
+1 -> 2 | b,A/\
+2 -> 2 | b,A/\
+---
+abb
+aabbbb
+aaabbbbbb
+ab
+aabbb

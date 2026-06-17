@@ -1,4 +1,5 @@
 Q: igual dif
+S: 01
 G: ZU
 I: igual
 F: igual
@@ -10,4 +11,6 @@ igual -> igual | 1,Z/\
 010110
 100001101
 10100110
+0011
+ab
 0011
