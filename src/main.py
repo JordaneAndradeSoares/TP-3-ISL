@@ -14,9 +14,7 @@ def leitura():
 
     estados = vetLinhas[0].split(' ')
     estados.remove("Q:")
-            
-    #alfabeto de cria
-    #alfabeto = {'0', '1'}
+
     alfabeto = vetLinhas[1].split(' ')
     alfabeto = alfabeto[1]
     
@@ -36,13 +34,24 @@ def leitura():
 
     ultimaLinha = ultimaLinha + 2
 
-    transicoes = AutomatoDePilha.criaDicionario(listaTransicoes)
+    automato = AutomatoDePilha(None, iniciais, alfabeto)
 
-    automato = AutomatoDePilha(transicoes, iniciais, alfabeto)
+    transicoes = automato.criaDicionario(listaTransicoes)
+    automato.transicoes = transicoes
 
     #leitura das entradas de teste
     for i in range(ultimaLinha, len(vetLinhas)):
         aceita = False
+
+        #verificar se no dicionario tem entrada lambda e testar
+        if(automato.tLambda):
+            #testa as entradas lambda
+            print("tem")
+            
+
+
+
+
         entradaAtual = vetLinhas[i]
         print(entradaAtual)
 

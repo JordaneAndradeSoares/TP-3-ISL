@@ -1,10 +1,12 @@
+LAMBDA = "λ"
 class AutomatoDePilha:
     def __init__(self, transicoes, estadosIniciais, alfabeto):
         self.transicoes = transicoes
         self.estadosIniciais = estadosIniciais
         self.alfabeto = alfabeto
+        self.tLambda = False
 
-    def criaDicionario(listaTransicoes):
+    def criaDicionario(self, listaTransicoes):
 
         transicoes = {}
         
@@ -15,7 +17,9 @@ class AutomatoDePilha:
 
             for i in range(0, len(separacao)):
                 if "\\" in separacao[i]:
-                    separacao[i] = separacao[i].replace("\\", " ")
+                    separacao[i] = separacao[i].replace("\\", LAMBDA)
+                    
+                    print(separacao)
 
             for p in range(3, len(separacao)):
                 estadoAtual = separacao[0]
@@ -26,6 +30,9 @@ class AutomatoDePilha:
                 partes = transicaoAtual.split(",")
 
                 entrada = partes[0]
+
+                if entrada == LAMBDA:
+                    self.tLambda = True
 
                 infoPilha = partes[1].split("/")
                 
@@ -45,27 +52,27 @@ class AutomatoDePilha:
             if(pilha == []):
                 return False
             
-            print("pilha no incicio", pilha)
+            #print("pilha no incicio", pilha)
             simbolo = entrada[i]
 
             topo = pilha[-1]
 
             consulta1 = (estadoAt, simbolo, topo)
-            consulta2 = (estadoAt, simbolo, " ")
+            consulta2 = (estadoAt, simbolo, LAMBDA)
 
             if(consulta1 in self.transicoes):
                 novoEstado, empilha = self.transicoes[consulta1]
                 estadoAt = novoEstado
                 pilha.pop()
 
-                if(empilha != " "):
+                if(empilha != LAMBDA):
                     for j in reversed(empilha):
                         pilha.append(j)
 
             elif(consulta2 in self.transicoes):
                 novoEstado, empilha = self.transicoes[consulta2]
                 estadoAt = novoEstado
-                if(empilha != " "):
+                if(empilha != LAMBDA):
                     for j in reversed(empilha):
                         pilha.append(j)
 
