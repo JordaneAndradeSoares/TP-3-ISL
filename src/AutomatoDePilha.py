@@ -1,4 +1,7 @@
+from collections import deque
+
 LAMBDA = "λ"
+
 class AutomatoDePilha:
     def __init__(self, transicoes, estadosIniciais, alfabeto):
         self.transicoes = transicoes
@@ -43,6 +46,7 @@ class AutomatoDePilha:
             
         return transicoes
 
+    """
     def simulacao(self, estadoI, entrada):
         pilha = ["Z"]
 
@@ -82,7 +86,69 @@ class AutomatoDePilha:
             return True
         else:
             return False
+    """
+
+    def simulacao(self, estadoI, entrada):
+        # Configuração: (estado, índice_na_entrada, pilha_como_tupla)
+        iniciais = {(estadoI, 0, ("Z",))}
         
+        # Expande lambdas a partir de um conjunto de configs
+        def expandeLambda(configs):
+            visitados = set(configs)
+            fila = deque(configs)
+            while fila:
+                estado, idx, pilha = fila.popleft()
+                if not pilha:
+                    continue
+                topo = pilha[-1]
+                # Tenta transição λ no símbolo
+                for consulta in [(estado, LAMBDA, topo), (estado, LAMBDA, LAMBDA)]:
+                    if consulta in self.transicoes:
+                        novoEstado, empilha = self.transicoes[consulta]
+                        novaPilha = list(pilha)
+                        if consulta[2] != LAMBDA:
+                            novaPilha.pop()
+                        if empilha != LAMBDA:
+                            for s in reversed(empilha):
+                                novaPilha.append(s)
+                        nova = (novoEstado, idx, tuple(novaPilha))
+                        if nova not in visitados:
+                            visitados.add(nova)
+                            fila.append(nova)
+            return visitados
+
+        configs = expandeLambda(iniciais)
+
+        for i, simbolo in enumerate(entrada):
+            proximas = set()
+            for estado, idx, pilha in configs:
+                if not pilha:
+                    continue
+                topo = pilha[-1]
+                for consulta in [(estado, simbolo, topo), (estado, simbolo, LAMBDA)]:
+                    if consulta in self.transicoes:
+                        novoEstado, empilha = self.transicoes[consulta]
+                        novaPilha = list(pilha)
+                        if consulta[2] != LAMBDA:   # desempilha só se não for λ
+                            novaPilha.pop()
+                        if empilha != LAMBDA:
+                            for s in reversed(empilha):
+                                novaPilha.append(s)
+                        proximas.add((novoEstado, i + 1, tuple(novaPilha)))
+            # Expande lambdas após consumir o símbolo
+            configs = expandeLambda(proximas)
+            if not configs:
+                return False
+
+        # Aceita se alguma config final tem pilha vazia ou só com Z
+        return any(
+            len(pilha) == 0 or pilha == ("Z",)
+            for estado, idx, pilha in configs
+        )
+
+
+
+
 
     def verificaAlfabeto(self, entrada):
         alfabeto = self.alfabeto

@@ -43,14 +43,7 @@ def leitura():
     for i in range(ultimaLinha, len(vetLinhas)):
         aceita = False
 
-        #verificar se no dicionario tem entrada lambda e testar
-        if(automato.tLambda):
-            #testa as entradas lambda
-            print("tem")
-            
-
-
-
+        
 
         entradaAtual = vetLinhas[i]
         print(entradaAtual)
