@@ -62,4 +62,8 @@ def ler_afd_com_alfabeto(linhas):
 
     palavras_af = [linha.rstrip("\n") for linha in linhas[i:]]
 
-    return afd, palavras_af
+    for palavra in palavras_af:
+        if afd.validar_palavra(palavra):
+            print("OK")
+        else:
+            print("X")
