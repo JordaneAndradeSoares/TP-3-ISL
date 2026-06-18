@@ -26,7 +26,6 @@ class AFDComAlfabeto(AFD):
         # Utiliza o validar palavra do pai normalmente
         return super().validar_palavra(palavra)
     
-
 # Le um arquivo de entrada contendo um AFD com alfabeto arbitrario
 def ler_afd_com_alfabeto(linhas):
 
