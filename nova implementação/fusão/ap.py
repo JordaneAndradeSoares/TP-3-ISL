@@ -44,14 +44,60 @@ class AutomatoDePilha:
             
         return transicoes
 
+    #função inicial que precisou ser alterada para aceitar transicoes lambda; 
+    #favor não apagar para poder documentar
+    """
     def simulacao(self, estadoI, entrada):
-        # configuração: (estado, i da entrada, pilha)
+        pilha = ["Z"]
+
+        estadoAt = estadoI
+
+        for i in range(0, len(entrada)):
+            if(pilha == []):
+                return False
+            
+            #print("pilha no incicio", pilha)
+            simbolo = entrada[i]
+
+            topo = pilha[-1]
+
+            consulta1 = (estadoAt, simbolo, topo)
+            consulta2 = (estadoAt, simbolo, LAMBDA)
+
+            if(consulta1 in self.transicoes):
+                novoEstado, empilha = self.transicoes[consulta1]
+                estadoAt = novoEstado
+                pilha.pop()
+
+                if(empilha != LAMBDA):
+                    for j in reversed(empilha):
+                        pilha.append(j)
+
+            elif(consulta2 in self.transicoes):
+                novoEstado, empilha = self.transicoes[consulta2]
+                estadoAt = novoEstado
+                if(empilha != LAMBDA):
+                    for j in reversed(empilha):
+                        pilha.append(j)
+
+            print("pilha no final", pilha)
+
+        if len(pilha) == 0 or pilha == ["Z"]:
+            return True
+        else:
+            return False
+    """
+
+    def simulacao(self, estadoI, entrada):
+        #cnfiguração: (estado, i da entrada, pilha)
         iniciais = {(estadoI, 0, ("Z",))}
         
         def expandeLambda(configs):
             visitados = set(configs)
             fila = deque(configs)
+
             while fila:
+
                 estado, idx, pilha = fila.popleft()
                 if not pilha:
                     continue
@@ -59,28 +105,34 @@ class AutomatoDePilha:
 
                 #transicao vazia
                 for consulta in [(estado, LAMBDA, topo), (estado, LAMBDA, LAMBDA)]:
+
                     if consulta in self.transicoes:
                         novoEstado, empilha = self.transicoes[consulta]
                         novaPilha = list(pilha)
+
                         if consulta[2] != LAMBDA:
                             novaPilha.pop()
                         if empilha != LAMBDA:
                             for s in reversed(empilha):
                                 novaPilha.append(s)
+
                         nova = (novoEstado, idx, tuple(novaPilha))
                         if nova not in visitados:
                             visitados.add(nova)
                             fila.append(nova)
+
             return visitados
 
         configs = expandeLambda(iniciais)
 
         for i, simbolo in enumerate(entrada):
             proximas = set()
+
             for estado, idx, pilha in configs:
                 if not pilha:
                     continue
                 topo = pilha[-1]
+
                 for consulta in [(estado, simbolo, topo), (estado, simbolo, LAMBDA)]:
                     if consulta in self.transicoes:
                         novoEstado, empilha = self.transicoes[consulta]
@@ -113,90 +165,63 @@ class AutomatoDePilha:
             
         return True
     
-def automato_de_pilha(linhas):          
-    estados_ap = []
-    alfabeto_entrada = []
-    alfabeto_pilha = []
-    iniciais = []
-    finais = []
-    listaTransicoes = []
-    palavras_teste = []
+    def leituraPilha(vetLinhas):          
+        estados = []
+        alfabeto = []
+        #alfabetoPilha = []
+        iniciais = []
+        #finais = []
+        listaTransicoes = []
+        #palavrasTeste = []
 
-    i = 0
-    # 1. Lê os parâmetros do autômato (lida com ordem dinâmica e linhas extras)
-    while i < len(linhas):
-        linha = linhas[i].strip()
-        
-        # Pula linhas vazias
-        if not linha:
-            i += 1
-            continue
-            
-        # Se achou uma transição ou o separador, sai da leitura de parâmetros
-        if "->" in linha or linha == "---":
-            break
-            
-        if linha.startswith("Q:"):
-            estados_ap = linha.split()[1:]
-        elif linha.startswith("S:"):
-            # Pega tudo após "S:" e remove espaços para suportar "S: 01" ou "S: 0 1"
-            alfabeto_entrada = list(linha[2:].strip().replace(" ", ""))
-        elif linha.startswith("G:"):
-            alfabeto_pilha = list(linha[2:].strip().replace(" ", ""))
-        elif linha.startswith("I:"):
-            iniciais = linha.split()[1:]
-        elif linha.startswith("F:"):
-            finais = linha.split()[1:]
-        
-        i += 1
+        estados = vetLinhas[0].split(' ')
+        estados.remove("Q:")
 
-    # 2. Lendo transições (agrupando transições que foram quebradas em várias linhas)
-    transicao_atual = ""
-    while i < len(linhas):
-        linha = linhas[i].strip()
+        alfabeto = vetLinhas[1].split(' ')
+        alfabeto = alfabeto[1]
         
-        if linha == "---":
-            if transicao_atual:
-                listaTransicoes.append(transicao_atual)
-            i += 1
-            break
-        
-        if "->" in linha:
-            if transicao_atual:
-                listaTransicoes.append(transicao_atual)
-            transicao_atual = linha # Começa uma nova transição
-        else:
-            if linha: # É continuação da transição anterior (ex: "0,Z/ZZ")
-                transicao_atual += " " + linha
-        i += 1
+        #print(alfabeto)
 
-    # 3. Lendo as palavras de teste
-    while i < len(linhas):
-        linha = linhas[i].strip()
-        palavras_teste.append(linha)
-        i += 1
+        iniciais = vetLinhas[3].split(' ')
+        iniciais.remove("I:")
 
-    # 4. Configurando e executando o Autômato de Pilha
-    automato = AutomatoDePilha(None, iniciais, alfabeto_entrada)
-    transicoes = automato.criaDicionario(listaTransicoes)
-    automato.transicoes = transicoes
+        listaTransicoes = []
 
-    # Execução das entradas
-    for entradaAtual in palavras_teste:
-        
-        if automato.verificaAlfabeto(entradaAtual) == False:
-            print("X")
-            continue
-
-        aceita = False
-        
-        # Testa todos os estados iniciais
-        for estadoInicial in automato.estadosIniciais:
-            if automato.simulacao(estadoInicial, entradaAtual) == True:
-                aceita = True
+        for n in range(4, len(vetLinhas)):
+            if vetLinhas[n] != "---":
+                listaTransicoes.append(vetLinhas[n])
+                ultimaLinha = n
+            else: 
                 break
-        
-        if aceita:
-            print("OK")
-        else:
-            print("X")
+
+        ultimaLinha = ultimaLinha + 2
+
+        automato = AutomatoDePilha(None, iniciais, alfabeto)
+
+        transicoes = automato.criaDicionario(listaTransicoes)
+        automato.transicoes = transicoes
+
+        #leitura das entradas de teste
+        for i in range(ultimaLinha, len(vetLinhas)):
+            aceita = False
+
+            entradaAtual = vetLinhas[i]
+            #print(entradaAtual)
+
+            if automato.verificaAlfabeto(entradaAtual) == False:
+                print("X")
+                continue
+
+            #testar para cada estado inicial
+            for j in range(0, len(iniciais)):
+                estadoInicial = automato.estadosIniciais[j]
+
+                if automato.simulacao(estadoInicial, entradaAtual) == True:
+                    aceita = True
+                    break
+            
+            if aceita:
+                print("OK")
+
+            else:
+                print("X")
