@@ -2,10 +2,11 @@ import os
 
 from extra_alfabeto import ler_afd_com_alfabeto # importando função da implementação da AF
 from ap import AutomatoDePilha #importando classe da implementação da AP
-    
+from afn import leituraAFN #importando classe da implementaçao do AFN
+
 # função principal para chamar as funções de processamento dos arquivos
 if __name__ == "__main__":
-    print("SIMULADOR MULTI-AUTOMATOS UNIFICADO\nFormatos de simulador suportados: @AF, @MT, @ALL e @AP\n")
+    print("SIMULADOR MULTI-AUTOMATOS UNIFICADO\nFormatos de simulador suportados: @AF, @AFN, @MT, @ALL e @AP\n")
 
     # pedindo o nome do arquivo de entrada para o usuário
     arquivoEntrada = input("Digite o arquivo de entrada: ")
@@ -33,6 +34,9 @@ if __name__ == "__main__":
             
         case "@AP":
             AutomatoDePilha.leituraPilha(vetLinhas)
+
+        case "@AFN":
+            leituraAFN(vetLinhas)
 
         case "@MT":
             print("Simulador de Máquina de Turing AINDA não implementado.") #TODO: fazer essa maquina
