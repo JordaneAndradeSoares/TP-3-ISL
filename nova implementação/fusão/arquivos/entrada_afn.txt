@@ -1,20 +1,16 @@
 @AFN
-Q: q0 q1 q2 q3
-S: a b
-I: q0
-F: q3
+Q: a b c
+S: 01
+I: a
+F: c
 
-q0 -> q0 | a b
-q0 -> q1 | a
-q1 -> q2 | b
-q2 -> q3 | a
-q2 -> q3 | b
+a -> b | 0
+b -> c | \
+c -> c | 1
 
 ---
-ab
-aab
-aba
-bb
-abab
-aaab
-ba
+0
+01
+011
+1
+00

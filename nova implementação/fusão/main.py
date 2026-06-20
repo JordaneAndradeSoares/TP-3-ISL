@@ -42,4 +42,4 @@ if __name__ == "__main__":
             print("Simulador de Máquina de Turing AINDA não implementado.") #TODO: fazer essa maquina
 
         case "@ALL":
-            print("Simulador de Máquina de Turing AINDA não implementado.") #TODO: fazer essa maquina
+            print("Simulador de Máquina de Turing AINDA não implementado.") #TODO: fazer essa maquin
