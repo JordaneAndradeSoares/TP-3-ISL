@@ -196,4 +196,3 @@ def leituraMT(vetLinhas):
             print("OK", maquina.formatarFita(fitaFinal))
         else:
             print("X", maquina.formatarFita(fitaFinal))
-

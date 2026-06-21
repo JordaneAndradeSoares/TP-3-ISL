@@ -37,24 +37,10 @@ class AFN:
 
         return transicoes
 
-    def fechoLambda(self, estados):
-        pilha = list(estados)
-        fecho = set(estados)
-
-        while pilha:
-            estado = pilha.pop()
-            consulta = (estado, "\\")
-            if consulta in self.transicoes:
-                for destino in self.transicoes[consulta]:
-                    if destino not in fecho:
-                        fecho.add(destino)
-                        pilha.append(destino)
-
-        return fecho
 
     def simulacao(self, estadoInicial, entrada):
 
-        estadosAtuais = self.fechoLambda({estadoInicial})
+        estadosAtuais = {estadoInicial}
 
         for simbolo in entrada:
 
@@ -70,7 +56,7 @@ class AFN:
                         self.transicoes[consulta]
                     )
 
-            estadosAtuais = self.fechoLambda(proximosEstados)
+            estadosAtuais = proximosEstados
 
             if len(estadosAtuais) == 0:
                 return False
@@ -106,11 +92,8 @@ def leituraAFN(vetLinhas):
     estados = vetLinhas[0].split()
     estados.remove("Q:")
 
-    linhaAlfabeto = vetLinhas[1].replace("S:", "", 1).strip()
-    if " " in linhaAlfabeto:
-        alfabeto = linhaAlfabeto.split()
-    else:
-        alfabeto = list(linhaAlfabeto)
+    alfabeto = vetLinhas[1].split()
+    alfabeto.remove("S:")
 
     iniciais = vetLinhas[2].split()
     iniciais.remove("I:")
@@ -155,6 +138,8 @@ def leituraAFN(vetLinhas):
     for i in range(ultimaLinha, len(vetLinhas)):
         
         entradaAtual = vetLinhas[i].strip()
+        if entradaAtual == "":
+            continue
         
         aceita = False
 
@@ -183,6 +168,3 @@ def leituraAFN(vetLinhas):
 
         else:
             print("X")
-
-
-
