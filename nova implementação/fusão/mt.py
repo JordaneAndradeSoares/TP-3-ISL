@@ -72,8 +72,38 @@ class MaquinaDeTuring:
             if conseguiu == False:
                 return False, fita
  
-        return False
+        return False, fita
     
+    def simulacaoALL(self, entrada):
+
+        fita = list("<" + entrada + ">")
+
+        cabecote = 1
+        estadosAtuais = self.estadoInicial
+
+        limitePassos = 1000
+        passos = 0
+
+        while passos < limitePassos:
+            passos = passos + 1
+
+            if estadosAtuais in self.estadosFinais:
+                return True, fita
+
+            fita, cabecote, estadosAtuais, conseguiu = self.passo(
+                fita,
+                cabecote,
+                estadosAtuais
+            )
+
+            if conseguiu == False:
+                return False, fita
+
+            if cabecote < 0 or cabecote >= len(fita):
+                return False, fita
+
+        return False, fita
+        
     def formatarFita(self, fita):
         texto = "".join(fita)
 
@@ -81,6 +111,49 @@ class MaquinaDeTuring:
             texto = texto[:-1]
 
         return texto
+
+    
+def leituraALL(vetLinhas):
+
+    estados = vetLinhas[0].split()
+    estados.remove("Q:")
+
+    alfabeto = vetLinhas[1].replace("G:", "", 1).strip()
+
+    linhaInicial = vetLinhas[2].split()
+    linhaInicial.remove("I:")
+    estadoInicial = linhaInicial[0]
+
+    finais = vetLinhas[3].split()
+    finais.remove("F:")
+
+    listaTransicoes = []
+    ultimaLinha = 4
+
+    for n in range(4, len(vetLinhas)):
+        linha = vetLinhas[n].strip()
+
+        if linha == "---":
+            ultimaLinha = n + 1
+            break
+
+        if linha != "":
+            listaTransicoes.append(vetLinhas[n])
+
+    maquina = MaquinaDeTuring(None, estadoInicial, finais, alfabeto)
+
+    transicoes = maquina.criaDicionario(listaTransicoes)
+    maquina.transicoes = transicoes
+
+    for i in range(ultimaLinha, len(vetLinhas)):
+        entradaAtual = vetLinhas[i].strip()
+
+        aceita, fitaFinal = maquina.simulacaoALL(entradaAtual)
+
+        if aceita:
+            print("OK", maquina.formatarFita(fitaFinal))
+        else:
+            print("X", maquina.formatarFita(fitaFinal))
     
 def leituraMT(vetLinhas):
 
@@ -123,3 +196,4 @@ def leituraMT(vetLinhas):
             print("OK", maquina.formatarFita(fitaFinal))
         else:
             print("X", maquina.formatarFita(fitaFinal))
+
