@@ -44,8 +44,7 @@ class AutomatoDePilha:
             
         return transicoes
 
-    # função inicial que precisou ser alterada para aceitar transicoes lambda; 
-    # favor NÃO apagar para poder documentar
+    # função inicial que precisou ser alterada para aceitar transicoes lambda;
     """
     def simulacao(self, estadoI, entrada):
         pilha = ["Z"]
@@ -89,7 +88,7 @@ class AutomatoDePilha:
     """
 
     def simulacao(self, estadoI, entrada):
-        # configuração: (estado, i da entrada, pilha)
+        #configuração: (estado, i da entrada, pilha)
         iniciais = {(estadoI, 0, ("Z",))}
         
         def expandeLambda(configs):
@@ -138,7 +137,7 @@ class AutomatoDePilha:
                         novoEstado, empilha = self.transicoes[consulta]
                         novaPilha = list(pilha)
 
-                        # desempilha se nao for lambda
+                        #desempilha se nao for lambda
                         if consulta[2] != LAMBDA:
                             novaPilha.pop()
                         if empilha != LAMBDA:
@@ -150,7 +149,7 @@ class AutomatoDePilha:
             if not configs:
                 return False
 
-        # aceita se alguma configuracao tem pilha só com Z
+        #aceita se alguma configuracao tem pilha só com Z
         return any(
             pilha == ("Z",)
             for estado, idx, pilha in configs
@@ -168,11 +167,11 @@ class AutomatoDePilha:
     def leituraPilha(vetLinhas):          
         estados = []
         alfabeto = []
-        # alfabetoPilha = []
+        #alfabetoPilha = []
         iniciais = []
         #finais = []
         listaTransicoes = []
-        # palavrasTeste = []
+        #palavrasTeste = []
 
         estados = vetLinhas[0].split(' ')
         estados.remove("Q:")
@@ -180,7 +179,7 @@ class AutomatoDePilha:
         alfabeto = vetLinhas[1].split(' ')
         alfabeto = alfabeto[1]
         
-        # print(alfabeto)
+        #print(alfabeto)
 
         iniciais = vetLinhas[3].split(' ')
         iniciais.remove("I:")
@@ -201,12 +200,12 @@ class AutomatoDePilha:
         transicoes = automato.criaDicionario(listaTransicoes)
         automato.transicoes = transicoes
 
-        # leitura das entradas de teste
+        #leitura das entradas de teste
         for i in range(ultimaLinha, len(vetLinhas)):
             aceita = False
 
             entradaAtual = vetLinhas[i]
-            # print(entradaAtual)
+            #print(entradaAtual)
 
             if automato.verificaAlfabeto(entradaAtual) == False:
                 print("X")
@@ -220,7 +219,7 @@ class AutomatoDePilha:
                     aceita = True
                     break
             
-            # printando o resultado da entrada de teste
+            #printando o resultado da entrada de teste
             if aceita:
                 print("OK")
 
